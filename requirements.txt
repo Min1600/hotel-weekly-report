@@ -1,0 +1,4 @@
+gspread>=6.1,<7
+google-genai>=1.0
+pydantic>=2.7,<3
+tzdata  # time zones on Windows

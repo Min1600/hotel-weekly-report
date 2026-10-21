@@ -1,0 +1,71 @@
+name: Weekly hotel report
+
+on:
+  schedule:
+    # GitHub cron is in UTC: 01:00 UTC Monday = 09:00 Monday in Malaysia/Taiwan
+    - cron: "0 1 * * 1"
+  workflow_dispatch:          # "Run workflow" button for testing
+    inputs:
+      report_week_start:
+        description: "Optional: Monday of the week to report (YYYY-MM-DD). Blank = last week."
+        required: false
+        default: ""
+      dry_run:
+        description: "Build the emails but don't send them"
+        type: boolean
+        default: false
+      force_resend:
+        description: "Send again even if the Run Log says this week was already sent"
+        type: boolean
+        default: false
+
+concurrency:
+  group: weekly-report        # never run two reports at the same time
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Run tests (stop before touching real data if anything is broken)
+        run: python -m pytest -q
+
+      - name: Run report
+        env:
+          SHEET_ID: ${{ vars.SHEET_ID }}
+          SHEET_TAB: ${{ vars.SHEET_TAB || 'Sheet1' }}
+          TIMEZONE: ${{ vars.TIMEZONE || 'Asia/Kuala_Lumpur' }}
+          CURRENCY: ${{ vars.CURRENCY || 'NT$' }}
+          SENDER_NAME: ${{ vars.SENDER_NAME || 'Partner Success Team' }}
+          # Safe by default: only an explicit TEST_MODE=false variable emails real owners
+          TEST_MODE: ${{ vars.TEST_MODE || 'true' }}
+          TEST_RECIPIENT: ${{ vars.TEST_RECIPIENT }}
+          INTERNAL_EMAIL: ${{ vars.INTERNAL_EMAIL }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.5-flash-lite' }}
+          REPORT_WEEK_START: ${{ inputs.report_week_start }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          FORCE_RESEND: ${{ inputs.force_resend }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python run.py
+
+      - name: Keep the cleaned data and email previews from this run
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-output
+          path: output/
+          if-no-files-found: ignore
+          retention-days: 30
