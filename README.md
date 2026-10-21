@@ -91,3 +91,7 @@ python run.py
 - **Run Log** → each hotel is emailed at most once per week per mode. Test sends never block a later live send.
 - **Tests run first** in every Action. If they fail, nothing is read or sent.
 - If any email fails, the run is marked failed, and GitHub emails you about failed scheduled runs.
+
+## Next Steps
+
+I considered clustering, but with 9 hotels and two independent variables it would be unstable and no more informative than a simple median comparison. With more hotels and property attributes, I’d use clustering to create peer groups for fairer benchmarks. Once the platform has hundreds of hotels and richer data, such as room count, star rating, city, property type, occupancy, cancellations and several weeks of history using unsupervised machine learning to create distinct groups would prove useful and informative.
