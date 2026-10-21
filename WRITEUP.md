@@ -16,10 +16,6 @@ emails it to the owner. While testing, every email goes to my own inbox instead.
 | Structure | **Pydantic** | Defines exactly what goes into the AI (`HotelFacts`) and what must come back (`EmailText`). A malformed reply is rejected automatically. |
 | Send | **Gmail SMTP** (App Password) | Uses my own Gmail as the brief suggests. No extra service needed. |
 
-I considered n8n. It's visual and quick to set up, but the logic would end up spread
-across separate code boxes, and it's harder to test and version-control. With only one
-week of data, being able to test the rules mattered more than a visual editor.
-
 ## How I decided "doing well" vs "needs improvement"
 The sheet has one week of revenue and orders per hotel. It has no targets and no previous
 weeks. So the only fair benchmark available is the other hotels that week.
