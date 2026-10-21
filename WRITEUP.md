@@ -83,3 +83,7 @@ business sets them.
   only rows from last Monday to Sunday are used.
 - Currency is assumed to be **NT$**. The hotel names are Traditional Chinese, and ~NT$4,700
   per booking is a normal room rate. It's one setting to change.
+
+## Next Steps
+
+I considered clustering, but with 9 hotels and two independent variables it would be unstable and no more informative than a simple median comparison. With more hotels and property attributes, I’d use clustering to create peer groups for fairer benchmarks. Once the platform has hundreds of hotels and richer data, such as room count, star rating, city, property type, occupancy, cancellations and several weeks of history using unsupervised machine learning to create distinct groups would prove useful and informative.
